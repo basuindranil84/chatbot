@@ -97,7 +97,7 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
 .prompt:focus-visible { outline: 3px solid var(--color-accent-blue); outline-offset: 2px; }
 
 .message { display: flex; gap: 8px; max-width: 90%; align-items: flex-start; }
-.message.user { align-self: flex-end; flex-direction: row-reverse; }
+.message.user { align-self: flex-end; flex-direction: row-reverse; max-width: 80%; }
 .message-avatar {
   display: none;
 }
@@ -105,21 +105,63 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
   white-space: pre-wrap; line-height: 1.55; border-radius: 14px;
   padding: 12px 14px; background: var(--color-message);
 }
-.message.user .message-body { background: var(--color-brand-primary); color: var(--color-white); }
+.message.user .message-body { background: var(--color-aubergine); color: var(--color-white); border-radius: 12px; }
 .message.assistant { flex-direction: column; max-width: 100%; }
 .message.no-results .message-body { font-weight: 700; }
 .profile-results { display: grid; gap: 10px; width: min(100%, 340px); }
 .profile-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 12px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 12px;
   background: var(--color-white);
   box-shadow: 0 2px 8px rgba(20, 28, 43, 0.05);
 }
-.profile-card h3 { margin: 0 0 5px; font-size: 15px; }
+.profile-card h3 { margin: 0 0 5px; font-size: 16px; letter-spacing: -1px; }
 .profile-card p { margin: 4px 0; font-size: 13px; line-height: 1.4; }
-.profile-card .profile-summary { color: var(--color-brand-primary); font-weight: 650; }
+.profile-card .profile-summary { color: var(--color-black); font-weight: 400; }
 .profile-card .profile-bio { margin-top: 8px; color: var(--color-text-secondary); }
+.profile-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.profile-photo-fallback {
+  display: grid;
+  place-items: center;
+  background: var(--color-aubergine-null);
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 22px;
+}
+.profile-card-copy { min-width: 0; }
+.profile-link {
+  color: var(--color-link);
+  font-size: 14px;
+  text-decoration: none;
+}
+.profile-link:hover, .profile-link:focus-visible {
+  text-decoration: underline;
+}
+.profile-link:focus-visible {
+  outline: 3px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+.show-more-button {
+  width: fit-content;
+  border: 1px solid var(--color-aubergine);
+  border-radius: 20px;
+  background: var(--color-white);
+  color: var(--color-aubergine);
+  padding: 8px 16px;
+  cursor: pointer;
+  font: inherit;
+}
+.show-more-button:hover { border-color: var(--color-aubergine-hover); color: var(--color-aubergine-hover); }
+.show-more-button:focus-visible { outline: 3px solid var(--color-accent-blue); outline-offset: 2px; }
 
 .typing { display: flex; align-items: center; gap: 5px; height: 42px; }
 .typing span {
@@ -135,6 +177,10 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
 .loading-skeleton span:nth-child(2) { width: 58%; align-self: flex-end; }
 .loading-skeleton span:nth-child(3) { width: 68%; }
 @keyframes pulse { to { opacity: .55; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .typing span { animation: none; }
+}
 .load-error { height: 100%; display: grid; place-content: center; text-align: center; padding: 24px; }
 .load-error p { margin: 0 0 12px; }
 .load-error button {
@@ -142,6 +188,15 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
   padding: 10px 14px; cursor: pointer; font: inherit;
 }
 .send-error { margin: 0 16px 12px; padding-left: 10px; border-left: 3px solid var(--color-accent-red); }
+.send-error button {
+  border: 0;
+  border-radius: 8px;
+  background: var(--color-aubergine);
+  color: var(--color-white);
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+}
 
 .chat-input {
   margin: 0;
@@ -150,6 +205,20 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
   gap: 10px;
   border-top: 1px solid var(--color-border-subtle);
   padding: 16px;
+}
+.chat-input-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.character-count {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  text-align: right;
+}
+.character-count.over-limit {
+  color: var(--color-accent-red);
+  font-weight: 700;
 }
 .chat-input input {
   border: 0; outline: 0; padding: 10px 10px;

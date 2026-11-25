@@ -1,7 +1,13 @@
 import json
 import unittest
 
-from app.services.profile_service import DATA_PATH, PROFILES, search_profiles
+from app.services.profile_service import (
+    DATA_PATH,
+    PROFILES,
+    extract_criteria,
+    search_profiles,
+    search_profiles_page,
+)
 
 
 class ProfileDatasetTests(unittest.TestCase):
@@ -81,6 +87,36 @@ class ProfileDatasetTests(unittest.TestCase):
 
         self.assertEqual([], results)
         self.assertIn("aren't available", reply)
+
+    def test_vague_request_needs_clarification(self):
+        page = search_profiles_page("someone nice")
+
+        self.assertTrue(page["criteria"]["needs_clarification"])
+        self.assertEqual([], page["cards"])
+        self.assertIn("Which age range and city", page["reply"])
+
+    def test_age_below_eighteen_is_clamped(self):
+        criteria = extract_criteria("women aged 15 to 25")
+
+        self.assertEqual(18, criteria["age_min"])
+        self.assertEqual(25, criteria["age_max"])
+        self.assertTrue(criteria["age_clamped"])
+
+    def test_unsupported_height_is_reported_but_supported_criteria_remain(self):
+        page = search_profiles_page("doctors in Kolkata who are tall")
+
+        self.assertEqual("doctor", page["criteria"]["profession"])
+        self.assertIn("height", page["criteria"]["unsupported_terms"])
+        self.assertIn("can't search on", page["reply"])
+
+    def test_card_payload_excludes_private_profile_text_and_keeps_a_view_link(self):
+        page = search_profiles_page("Find doctors in Kolkata aged 28 to 32")
+
+        self.assertTrue(page["cards"])
+        card = page["cards"][0]
+        self.assertIsNone(card["photo_url"])
+        self.assertTrue(card["profile_url"].startswith("/profile/"))
+        self.assertNotIn("short_bio", card)
 
 
 if __name__ == "__main__":

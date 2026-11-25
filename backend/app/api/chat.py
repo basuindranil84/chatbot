@@ -42,5 +42,9 @@ async def post_message(payload: ChatRequest, db: AsyncSession = Depends(get_db))
             "content": assistant_message.content,
             "created_at": assistant_message.created_at,
             "profiles": assistant_message.profiles,
+            "criteria": assistant_message.criteria,
+            "total": assistant_message.total,
+            "shown": assistant_message.shown,
+            "has_more": bool(assistant_message.has_more),
         },
     }

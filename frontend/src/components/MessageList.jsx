@@ -6,7 +6,7 @@ const EXAMPLE_PROMPTS = [
   "Help me write a first message",
 ];
 
-export default function MessageList({ messages, isSending, onPrompt }) {
+export default function MessageList({ messages, isSending, onPrompt, onShowMore }) {
   const endOfMessagesRef = useRef(null);
 
   useEffect(() => {
@@ -39,32 +39,45 @@ export default function MessageList({ messages, isSending, onPrompt }) {
           </div>
           <div className="message-body">{message.content}</div>
           {message.profiles?.length > 0 && (
-            <div className="profile-results" aria-label="Matching profiles">
+            <div className="profile-results" aria-label="Matching profiles" role="list">
               {message.profiles.map((profile) => (
-                <article className="profile-card" key={profile.id}>
-                  <h3>{profile.name}</h3>
+                <article
+                  className="profile-card"
+                  key={profile.profile_id || profile.id}
+                  role="listitem"
+                  aria-label={`${profile.first_name || profile.name?.split(" ")[0]}, ${profile.age}, ${profile.profession}, ${profile.city || ""}`}
+                >
+                  {profile.photo_url ? (
+                    <img className="profile-photo" src={profile.photo_url} alt="" />
+                  ) : (
+                    <div className="profile-photo profile-photo-fallback" aria-hidden="true">
+                      {(profile.first_name || profile.name || "?").charAt(0)}
+                    </div>
+                  )}
+                  <div className="profile-card-copy">
+                  <h3>{profile.first_name || profile.name}</h3>
                   <p className="profile-summary">
-                    {profile.age} · {profile.gender} · {profile.profession}
+                    {profile.age}{profile.city ? ` · ${profile.city}` : ""} · {profile.profession}
                   </p>
-                  <p>{profile.city}, {profile.region} · {profile.culture_community}</p>
-                  <p>Education: {profile.education}</p>
-                  <p>Languages: {profile.languages.join(", ")}</p>
-                  <p>Interests: {profile.interests.join(", ")}</p>
-                  <p>
-                    Looking for: {profile.relationship_preferences.relationship_goal} · ages{" "}
-                    {profile.relationship_preferences.preferred_age_range.min}–{profile.relationship_preferences.preferred_age_range.max}
-                  </p>
-                  <p className="profile-bio">{profile.short_bio}</p>
+                  <a className="profile-link" href={profile.profile_url || `/profile/${profile.profile_id || profile.id}`}>View profile</a>
+                  </div>
                 </article>
               ))}
             </div>
+          )}
+          {message.has_more && (
+            <button type="button" className="show-more-button" onClick={onShowMore}>
+              Show 5 more
+            </button>
           )}
         </article>
       ))}
       {isSending && (
         <article className="message assistant">
           <div className="message-avatar">AI</div>
-          <div className="typing"><span /><span /><span /></div>
+          <div className="typing" role="status" aria-label="Assistant is typing">
+            <span /><span /><span />
+          </div>
         </article>
       )}
       <div ref={endOfMessagesRef} />

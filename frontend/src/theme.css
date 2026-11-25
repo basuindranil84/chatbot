@@ -19,6 +19,9 @@
   --color-muted: #9DA4B3;
   --color-skeleton: #EEEAF0;
   --color-border-subtle: #E7E3E8;
+  --color-aubergine: #611F69;
+  --color-aubergine-hover: #4A154B;
+  --color-aubergine-null: #611F69;
   --font-heading: Inter, "Segoe UI", sans-serif;
   --font-body: Inter, "Segoe UI", sans-serif;
 }
