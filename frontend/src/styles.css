@@ -106,6 +106,19 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
   padding: 12px 14px; background: var(--color-message);
 }
 .message.user .message-body { background: var(--color-brand-primary); color: var(--color-white); }
+.message.assistant { flex-direction: column; max-width: 100%; }
+.profile-results { display: grid; gap: 10px; width: min(100%, 340px); }
+.profile-card {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--color-white);
+  box-shadow: 0 2px 8px rgba(20, 28, 43, 0.05);
+}
+.profile-card h3 { margin: 0 0 5px; font-size: 15px; }
+.profile-card p { margin: 4px 0; font-size: 13px; line-height: 1.4; }
+.profile-card .profile-summary { color: var(--color-brand-primary); font-weight: 650; }
+.profile-card .profile-bio { margin-top: 8px; color: var(--color-text-secondary); }
 
 .typing { display: flex; align-items: center; gap: 5px; height: 42px; }
 .typing span {

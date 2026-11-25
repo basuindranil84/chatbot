@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 
 from app.api.chat import router as chat_router
 from app.config import settings
@@ -13,6 +14,13 @@ from app.models import Base
 async def lifespan(app: FastAPI):
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
+        message_columns = await connection.run_sync(
+            lambda sync_connection: {
+                column["name"] for column in inspect(sync_connection).get_columns("messages")
+            }
+        )
+        if "profiles" not in message_columns:
+            await connection.execute(text("ALTER TABLE messages ADD COLUMN profiles JSON"))
     yield
     await engine.dispose()
 
