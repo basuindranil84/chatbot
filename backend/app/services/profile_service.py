@@ -267,3 +267,165 @@ def search_profiles(query: str, limit: int = 5) -> tuple[str, list[dict]]:
     else:
         reply = f"I found {total} matching profile{'s' if total != 1 else ''}. Here are up to {len(results)} results."
     return reply, results
+
+
+def extract_criteria(query: str) -> dict:
+    constraints = _query_constraints(query)
+    age_min = constraints["age_min"]
+    age_max = constraints["age_max"]
+    age_clamped = False
+    if age_min is not None and age_min < 18:
+        age_min = 18
+        age_clamped = True
+    if age_max is not None and age_max < 18:
+        age_max = 18
+        age_clamped = True
+    if age_min is not None and age_max is not None and age_min > age_max:
+        age_min, age_max = age_max, age_min
+
+    gender = constraints["gender"]
+    looking_for = "bride" if gender == "Female" else "groom" if gender == "Male" else None
+    city = constraints["cities"][0] if constraints["cities"] else None
+    region = constraints["regions"][0] if constraints["regions"] else None
+    religion = constraints["religions"][0] if constraints["religions"] else None
+    profession = None
+    if constraints["profession_keywords"]:
+        keyword_set = constraints["profession_keywords"][0]
+        for label, keywords in _PROFESSION_TERMS.items():
+            if keyword_set == keywords:
+                profession = label
+                break
+
+    unsupported_terms = []
+    unsupported_words = (
+        ("tall", "height"),
+        ("short", "height"),
+        ("income", "income"),
+        ("education", "education"),
+        ("vegetarian", "diet"),
+        ("non-vegetarian", "diet"),
+    )
+    lowered = query.casefold()
+    for term, field_name in unsupported_words:
+        if re.search(rf"\b{re.escape(term)}\b", lowered):
+            unsupported_terms.append(field_name)
+
+    needs_clarification = not any(
+        (
+            age_min,
+            age_max,
+            city,
+            region,
+            religion,
+            profession,
+            constraints["languages"],
+            constraints["interests"],
+            gender,
+        )
+    )
+    return {
+        "looking_for": looking_for,
+        "age_min": age_min,
+        "age_max": age_max,
+        "country": "India" if city or region or religion or profession or gender else None,
+        "state": region,
+        "city": city,
+        "religion": religion,
+        "mother_tongue": constraints["languages"][0] if constraints["languages"] else None,
+        "profession": profession,
+        "diet": None,
+        "needs_clarification": needs_clarification,
+        "clarifying_question": "Happy to help. Which age range and city should I look in?" if needs_clarification else None,
+        "unsupported_terms": sorted(set(unsupported_terms)),
+        "age_clamped": age_clamped,
+    }
+
+
+def card_payload(profile: dict) -> dict:
+    first_name = profile["name"].split()[0]
+    return {
+        "profile_id": profile["id"],
+        "first_name": first_name,
+        "age": profile["age"],
+        "city": profile["city"],
+        "profession": profile["profession"].split(" / ")[0],
+        "photo_url": None,
+        "profile_url": f"/profile/{profile['id']}",
+    }
+
+
+def search_profiles_page(
+    query: str,
+    seen_profile_ids: list[str] | None = None,
+    limit: int = 5,
+):
+    seen = set(seen_profile_ids or [])
+    if re.search(r"\bfavorites?\b", query, flags=re.IGNORECASE):
+        return {
+            "reply": "Saved favorites aren't available in this demo yet.",
+            "criteria": None,
+            "total": 0,
+            "cards": [],
+            "has_more": False,
+        }
+
+    criteria = extract_criteria(query)
+    if criteria["needs_clarification"]:
+        return {
+            "reply": criteria["clarifying_question"],
+            "criteria": criteria,
+            "total": 0,
+            "cards": [],
+            "has_more": False,
+        }
+
+    _, matches = search_profiles(query, limit=500)
+    matches = [profile for profile in matches if profile["id"] not in seen]
+    total = len(matches)
+    cards = [card_payload(profile) for profile in matches[:limit]]
+    if total == 0:
+        reply = "I couldn't find a match for that. You could try a wider age range or nearby cities."
+    elif len(matches) > limit:
+        reply = f"I found {total} profiles. Here are the first {limit}."
+    else:
+        reply = f"I found {total} matching profile{'s' if total != 1 else ''}."
+    if cards:
+        understood = criteria_summary(criteria)
+        reply = understood + " " + reply
+    if criteria["age_clamped"]:
+        reply = "Members have to be 18 or older, so I searched from 18. " + reply
+    if criteria["unsupported_terms"]:
+        reply += " I can't search on that, but I can use things like age, location, religion, mother tongue, and profession."
+    return {
+        "reply": reply,
+        "criteria": criteria,
+        "total": total,
+        "cards": cards,
+        "has_more": total > len(cards),
+    }
+
+
+def criteria_summary(criteria: dict) -> str:
+    parts = []
+    if criteria["looking_for"]:
+        parts.append(criteria["looking_for"] + "s")
+    if criteria["age_min"] is not None or criteria["age_max"] is not None:
+        if criteria["age_min"] is not None and criteria["age_max"] is not None:
+            parts.append(f"aged {criteria['age_min']} to {criteria['age_max']}")
+        elif criteria["age_min"] is not None:
+            parts.append(f"aged {criteria['age_min']} or older")
+        else:
+            parts.append(f"aged {criteria['age_max']} or younger")
+    if criteria["city"]:
+        parts.append(f"in {criteria['city']}")
+    elif criteria["state"]:
+        parts.append(f"in {criteria['state']}")
+    if criteria["religion"]:
+        parts.append(f"who are {criteria['religion'].lower()}")
+    if criteria["mother_tongue"]:
+        parts.append(f"who speak {criteria['mother_tongue']}")
+    if criteria["profession"]:
+        parts.append(f"working as {criteria['profession']}s")
+    if not parts:
+        return "Here's what I looked for."
+    return "Here's what I looked for: " + ", ".join(parts) + "."

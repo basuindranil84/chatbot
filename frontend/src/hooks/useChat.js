@@ -14,6 +14,7 @@ export function useChat() {
   const [loadError, setLoadError] = useState("");
   const [sendError, setSendError] = useState("");
   const [draft, setDraft] = useState(() => sessionStorage.getItem(DRAFT_KEY) || "");
+  const [lastSentMessage, setLastSentMessage] = useState("");
 
   useEffect(() => {
     if (conversationId) localStorage.setItem(CONVERSATION_KEY, conversationId);
@@ -44,7 +45,7 @@ export function useChat() {
 
   async function sendMessage(text) {
     const trimmed = text.trim();
-    if (!trimmed || isSending) return;
+    if (!trimmed || isSending || trimmed.length > 500) return;
 
     setSendError("");
     setMessages((current) => [
@@ -53,6 +54,7 @@ export function useChat() {
     ]);
     setIsSending(true);
     setDraft("");
+    setLastSentMessage(trimmed);
 
     try {
       const result = await sendChatMessage(trimmed, conversationId);
@@ -75,5 +77,6 @@ export function useChat() {
     setDraft,
     loadConversation,
     sendMessage,
+    retryLastMessage: () => sendMessage(lastSentMessage),
   };
 }

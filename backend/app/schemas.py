@@ -9,25 +9,29 @@ class ORMModel(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    message: str = Field(min_length=1, max_length=8000)
+    message: str = Field(min_length=1, max_length=500)
     conversation_id: int | None = None
 
 
 class ProfileResponse(ORMModel):
-    id: str
-    name: str
-    gender: str
+    id: str | None = None
+    name: str | None = None
+    gender: str | None = None
     age: int
-    city: str
-    region: str
-    culture_community: str
-    languages: list[str]
-    religion: str
+    city: str | None = None
+    region: str | None = None
+    culture_community: str | None = None
+    languages: list[str] | None = None
+    religion: str | None = None
     profession: str
-    education: str
-    interests: list[str]
-    short_bio: str
-    relationship_preferences: dict[str, Any]
+    education: str | None = None
+    interests: list[str] | None = None
+    short_bio: str | None = None
+    relationship_preferences: dict[str, Any] | None = None
+    profile_id: str | None = None
+    first_name: str | None = None
+    photo_url: str | None = None
+    profile_url: str | None = None
 
 
 class MessageResponse(ORMModel):
@@ -36,6 +40,10 @@ class MessageResponse(ORMModel):
     content: str
     created_at: datetime
     profiles: list[ProfileResponse] | None = None
+    criteria: dict[str, Any] | None = None
+    total: int | None = None
+    shown: int | None = None
+    has_more: bool | None = None
 
 
 class ConversationResponse(ORMModel):

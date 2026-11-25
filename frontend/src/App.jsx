@@ -18,6 +18,7 @@ export default function App({ isAuthenticated = true }) {
     setDraft,
     loadConversation,
     sendMessage,
+    retryLastMessage,
   } = useChat();
 
   const assistantEnabled =
@@ -77,6 +78,10 @@ export default function App({ isAuthenticated = true }) {
     window.requestAnimationFrame(() => inputRef.current?.focus());
   }
 
+  function showMore() {
+    sendMessage("show more");
+  }
+
   return (
     <main className="app-shell">
       <section className="demo-page">
@@ -110,16 +115,22 @@ export default function App({ isAuthenticated = true }) {
                 messages={messages}
                 isSending={isSending}
                 onPrompt={choosePrompt}
+                onShowMore={showMore}
               />
             )}
-            {sendError && <p className="send-error" role="alert">{sendError}</p>}
+            {sendError && (
+              <div className="send-error" role="alert">
+                <p>{sendError}</p>
+                <button type="button" onClick={retryLastMessage}>Try again</button>
+              </div>
+            )}
           </div>
           <ChatInput
             value={draft}
             onChange={setDraft}
             onSend={sendMessage}
             isDisabled={Boolean(loadError) || isSending}
-            isSendDisabled={isLoading || Boolean(loadError) || isSending}
+            isSendDisabled={isLoading || Boolean(loadError) || isSending || draft.length > 500}
             inputRef={inputRef}
           />
         </section>
