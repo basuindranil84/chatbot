@@ -38,6 +38,27 @@ export default function MessageList({ messages, isSending, onPrompt }) {
             {message.role === "assistant" ? "AI" : "You"}
           </div>
           <div className="message-body">{message.content}</div>
+          {message.profiles?.length > 0 && (
+            <div className="profile-results" aria-label="Matching profiles">
+              {message.profiles.map((profile) => (
+                <article className="profile-card" key={profile.id}>
+                  <h3>{profile.name}</h3>
+                  <p className="profile-summary">
+                    {profile.age} · {profile.gender} · {profile.profession}
+                  </p>
+                  <p>{profile.city}, {profile.region} · {profile.culture_community}</p>
+                  <p>Education: {profile.education}</p>
+                  <p>Languages: {profile.languages.join(", ")}</p>
+                  <p>Interests: {profile.interests.join(", ")}</p>
+                  <p>
+                    Looking for: {profile.relationship_preferences.relationship_goal} · ages{" "}
+                    {profile.relationship_preferences.preferred_age_range.min}–{profile.relationship_preferences.preferred_age_range.max}
+                  </p>
+                  <p className="profile-bio">{profile.short_bio}</p>
+                </article>
+              ))}
+            </div>
+          )}
         </article>
       ))}
       {isSending && (

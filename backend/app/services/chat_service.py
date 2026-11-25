@@ -2,14 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Conversation, Message
-
-
-def get_fallback_reply(message: str) -> str:
-    text = message.strip()
-    return (
-        f"I received your message: \"{text}\". "
-        "This modular chatbot is ready to connect to an AI provider or add custom business logic."
-    )
+from app.services.profile_service import search_profiles
 
 
 async def send_message(db: AsyncSession, message: str, conversation_id: int | None):
@@ -31,10 +24,12 @@ async def send_message(db: AsyncSession, message: str, conversation_id: int | No
     )
     db.add(user_message)
 
+    reply, profiles = search_profiles(message)
     assistant_message = Message(
         conversation_id=conversation.id,
         role="assistant",
-        content=get_fallback_reply(message),
+        content=reply,
+        profiles=profiles,
     )
     db.add(assistant_message)
     await db.commit()

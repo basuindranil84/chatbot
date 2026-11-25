@@ -4,6 +4,27 @@
 
 A modular full-stack chatbot built with React, FastAPI, and PostgreSQL.
 
+## Sample profile data
+
+The backend uses `backend/app/data/profiles.json` as its master dataset. It contains
+500 synthetic profiles across Indian regions and communities, split between male and
+female profiles aged 21–45. Chat searches filter this data and return up to five
+structured profile cards by gender, age, location, community, profession,
+religion, language, and interests; no external AI service is used. First-message
+suggestions use a profile's interests. Favorites are not stored in this demo.
+
+Regenerate the deterministic sample dataset with:
+
+```bash
+python backend/scripts/generate_profiles.py
+```
+
+Run the profile search tests from `backend/`:
+
+```bash
+python -m unittest discover -s tests
+```
+
 ## Structure
 
 ```text
