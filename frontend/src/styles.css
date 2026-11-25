@@ -107,6 +107,7 @@ body { margin: 0; min-width: 320px; min-height: 100vh; }
 }
 .message.user .message-body { background: var(--color-brand-primary); color: var(--color-white); }
 .message.assistant { flex-direction: column; max-width: 100%; }
+.message.no-results .message-body { font-weight: 700; }
 .profile-results { display: grid; gap: 10px; width: min(100%, 340px); }
 .profile-card {
   border: 1px solid var(--color-border);

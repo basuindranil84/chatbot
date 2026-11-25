@@ -31,7 +31,7 @@ export default function MessageList({ messages, isSending, onPrompt }) {
       )}
       {messages.map((message) => (
         <article
-          className={`message ${message.role}`}
+          className={`message ${message.role}${message.role === "assistant" && message.profiles?.length === 0 ? " no-results" : ""}`}
           key={message.id}
         >
           <div className="message-avatar">
