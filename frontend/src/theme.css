@@ -1,0 +1,24 @@
+:root {
+  --color-brand-primary: #294B8B;
+  --color-brand-hover: #1C386F;
+  --color-brand-muted: #E8EEF8;
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  --color-link: #1264A3;
+  --color-success: #007A5A;
+  --color-accent-blue: #36C5F0;
+  --color-accent-red: #E01E5A;
+  --color-page: #F5F4F6;
+  --color-page-gradient-start: #FAF9FA;
+  --color-page-gradient-end: #F1EFF2;
+  --color-text-secondary: #5F5A62;
+  --color-surface-subtle: #F4F2F4;
+  --color-border: #D8D1D9;
+  --color-prompt-hover: #F7F5F8;
+  --color-message: #F1F3F7;
+  --color-muted: #9DA4B3;
+  --color-skeleton: #EEEAF0;
+  --color-border-subtle: #E7E3E8;
+  --font-heading: Inter, "Segoe UI", sans-serif;
+  --font-body: Inter, "Segoe UI", sans-serif;
+}
