@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchConversation, sendChatMessage } from "../api/chatApi";
 
 const CONVERSATION_KEY = "matchmaking-assistant-conversation-id";
@@ -15,6 +15,7 @@ export function useChat() {
   const [sendError, setSendError] = useState("");
   const [draft, setDraft] = useState(() => sessionStorage.getItem(DRAFT_KEY) || "");
   const [lastSentMessage, setLastSentMessage] = useState("");
+  const sendInProgressRef = useRef(false);
 
   useEffect(() => {
     if (conversationId) localStorage.setItem(CONVERSATION_KEY, conversationId);
@@ -45,8 +46,9 @@ export function useChat() {
 
   async function sendMessage(text) {
     const trimmed = text.trim();
-    if (!trimmed || isSending || trimmed.length > 500) return;
+    if (!trimmed || sendInProgressRef.current || trimmed.length > 500) return;
 
+    sendInProgressRef.current = true;
     setSendError("");
     setMessages((current) => [
       ...current,
@@ -63,6 +65,7 @@ export function useChat() {
     } catch (requestError) {
       setSendError(requestError.message);
     } finally {
+      sendInProgressRef.current = false;
       setIsSending(false);
     }
   }
