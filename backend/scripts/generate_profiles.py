@@ -247,6 +247,29 @@ INTERESTS = [
     "travel", "history", "board games", "food markets", "volunteering",
     "painting", "technology", "dance", "birdwatching", "cycling",
 ]
+DIETS = ["vegetarian", "eggetarian", "non-vegetarian", "vegan"]
+SMOKING_OPTIONS = ["non-smoker", "occasional", "regular"]
+SOCIAL_DRINKING_OPTIONS = ["none", "occasional", "regular"]
+LIFESTYLES = ["active", "balanced", "home-oriented"]
+SYNTHETIC_CASTES = [f"Synthetic group {letter}" for letter in "ABCDEF"]
+SYNTHETIC_GOTRAS = [f"Synthetic lineage {letter}" for letter in "ABCDEFGHIJKL"]
+VISIBLE_PROFILE_FIELDS = [
+    "city",
+    "region",
+    "country",
+    "culture_community",
+    "profession",
+    "interests",
+    "religion",
+    "mother_tongue",
+    "height_cm",
+    "caste",
+    "gotra",
+    "diet",
+    "smoking",
+    "social_drinking",
+    "lifestyle",
+]
 GOALS = ["Long-term relationship", "Marriage-minded", "Committed partnership"]
 BIO_TEMPLATES = [
     "A {profession_lower} who enjoys {first_interest} and {second_interest}. I value kindness, curiosity, and time with family and friends.",
@@ -297,6 +320,13 @@ def build_profiles():
         preferred_age_min = max(21, age - rng.randint(2, 5))
         preferred_age_max = min(45, age + rng.randint(2, 5))
         religion = rng.choice(community["religions"])
+        profile_rng = random.Random(982451653 + index)
+        visibility = {
+            field: profile_rng.random() >= 0.25
+            for field in VISIBLE_PROFILE_FIELDS
+        }
+        visibility["city"] = index % 5 != 1
+        visibility["profession"] = index % 5 != 1
         profile = {
             "id": f"profile-{index + 1:04d}",
             "name": name,
@@ -304,9 +334,19 @@ def build_profiles():
             "age": age,
             "city": city,
             "region": region,
+            "country": "India",
             "culture_community": community_name,
             "languages": rng.sample(community["languages"], k=min(3, len(community["languages"]))),
+            "mother_tongue": community["languages"][0],
             "religion": religion,
+            "height_cm": profile_rng.randint(150, 195),
+            "caste": profile_rng.choice(SYNTHETIC_CASTES),
+            "gotra": profile_rng.choice(SYNTHETIC_GOTRAS),
+            "diet": profile_rng.choice(DIETS),
+            "smoking": profile_rng.choice(SMOKING_OPTIONS),
+            "social_drinking": profile_rng.choice(SOCIAL_DRINKING_OPTIONS),
+            "lifestyle": profile_rng.choice(LIFESTYLES),
+            "visibility": visibility,
             "profession": profession,
             "education": rng.choice(EDUCATION_BY_PROFESSION.get(profession, EDUCATION)),
             "interests": interests,
