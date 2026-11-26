@@ -43,17 +43,19 @@ export function useChat() {
     }
   }
 
-  async function sendMessage(text) {
+  async function sendMessage(text, { isRetry = false } = {}) {
     const trimmed = text.trim();
     if (!trimmed || isSending || trimmed.length > 500) return;
 
     setSendError("");
-    setMessages((current) => [
-      ...current,
-      { id: `user-${Date.now()}`, role: "user", content: trimmed },
-    ]);
+    if (!isRetry) {
+      setMessages((current) => [
+        ...current,
+        { id: `user-${Date.now()}`, role: "user", content: trimmed },
+      ]);
+    }
     setIsSending(true);
-    setDraft("");
+    if (!isRetry) setDraft("");
     setLastSentMessage(trimmed);
 
     try {
@@ -77,6 +79,6 @@ export function useChat() {
     setDraft,
     loadConversation,
     sendMessage,
-    retryLastMessage: () => sendMessage(lastSentMessage),
+    retryLastMessage: () => sendMessage(lastSentMessage, { isRetry: true }),
   };
 }
