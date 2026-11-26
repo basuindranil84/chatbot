@@ -23,7 +23,7 @@ class ProfileResponse(ORMModel):
     culture_community: str | None = None
     languages: list[str] | None = None
     religion: str | None = None
-    profession: str
+    profession: str | None = None
     education: str | None = None
     interests: list[str] | None = None
     short_bio: str | None = None

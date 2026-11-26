@@ -12,6 +12,12 @@ female profiles aged 21–45. Chat searches filter this data and return up to fi
 structured profile cards by gender, age, location, community, profession,
 religion, language, and interests; no external AI service is used. First-message
 suggestions use a profile's interests. Favorites are not stored in this demo.
+The synthetic records also include height, diet, caste/gotra labels, smoking and
+social-drinking preferences, and a small set of lifestyle values for search
+testing. Caste and gotra values are deliberately generic synthetic labels.
+Optional profile fields are searchable only when the corresponding field is
+enabled in that profile's `visibility` map. A vague height request such as
+"tall" asks for a minimum height in centimeters rather than assuming a cutoff.
 
 Regenerate the deterministic sample dataset with:
 

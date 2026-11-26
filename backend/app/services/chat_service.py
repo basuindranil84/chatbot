@@ -1,7 +1,7 @@
+import time
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-import time
 
 from app.models import Conversation, Message, SearchAudit
 from app.services.profile_service import search_profiles_page
@@ -34,12 +34,37 @@ def _criteria_query(criteria: dict | None) -> str:
         terms.append(f"aged {criteria.get('age_min') or 18} to {criteria.get('age_max') or 45}")
     if criteria.get("city"):
         terms.append(f"in {criteria['city']}")
+    elif criteria.get("state"):
+        terms.append(f"in {criteria['state']}")
     if criteria.get("religion"):
         terms.append(criteria["religion"])
     if criteria.get("mother_tongue"):
         terms.append(f"speaking {criteria['mother_tongue']}")
     if criteria.get("profession"):
         terms.append(f"{criteria['profession']}s")
+    if criteria.get("height_min_cm") is not None and criteria.get("height_max_cm") is not None:
+        terms.append(
+            f"{criteria['height_min_cm']} to {criteria['height_max_cm']} cm"
+        )
+    elif criteria.get("height_min_cm") is not None:
+        terms.append(f"at least {criteria['height_min_cm']} cm")
+    elif criteria.get("height_max_cm") is not None:
+        terms.append(f"under {criteria['height_max_cm']} cm")
+    if criteria.get("caste"):
+        terms.append(criteria["caste"])
+    if criteria.get("gotra"):
+        terms.append(criteria["gotra"])
+    if criteria.get("diet"):
+        terms.append(criteria["diet"])
+    if criteria.get("smoking") == ["non-smoker"]:
+        terms.append("non-smoker")
+    elif criteria.get("smoking"):
+        terms.append("smoker")
+    if criteria.get("social_drinking"):
+        terms.append("social drinker")
+    if criteria.get("lifestyle"):
+        terms.append(criteria["lifestyle"])
+    terms.extend(criteria.get("hobbies", []))
     return " ".join(terms)
 
 
