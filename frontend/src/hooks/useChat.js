@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchConversation, sendChatMessage } from "../api/chatApi";
 
 const CONVERSATION_KEY = "matchmaking-assistant-conversation-id";
@@ -15,6 +15,12 @@ export function useChat() {
   const [sendError, setSendError] = useState("");
   const [draft, setDraft] = useState(() => sessionStorage.getItem(DRAFT_KEY) || "");
   const [lastSentMessage, setLastSentMessage] = useState("");
+  const loadRequestRef = useRef(0);
+  const loadAbortRef = useRef(null);
+
+  useEffect(() => {
+    return () => loadAbortRef.current?.abort();
+  }, []);
 
   useEffect(() => {
     if (conversationId) localStorage.setItem(CONVERSATION_KEY, conversationId);
@@ -25,21 +31,31 @@ export function useChat() {
   }, [draft]);
 
   async function loadConversation() {
+    const requestId = ++loadRequestRef.current;
+    loadAbortRef.current?.abort();
+    const controller = new AbortController();
+    loadAbortRef.current = controller;
+
     setIsLoading(true);
     setLoadError("");
 
     try {
       if (!conversationId) {
-        setMessages([]);
+        if (requestId === loadRequestRef.current) setMessages([]);
         return;
       }
-      const conversation = await fetchConversation(conversationId);
-      setMessages(conversation.messages || []);
-    } catch {
-      setMessages([]);
-      setLoadError("I couldn't load our chat just now. Please try again.");
+      const conversation = await fetchConversation(conversationId, { signal: controller.signal });
+      if (requestId === loadRequestRef.current) {
+        setMessages(conversation.messages || []);
+      }
+    } catch (requestError) {
+      if (requestError.name === "AbortError") return;
+      if (requestId === loadRequestRef.current) {
+        setMessages([]);
+        setLoadError("I couldn't load our chat just now. Please try again.");
+      }
     } finally {
-      setIsLoading(false);
+      if (requestId === loadRequestRef.current) setIsLoading(false);
     }
   }
 

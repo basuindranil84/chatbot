@@ -1,7 +1,7 @@
 const API_ROOT = "/api/chat";
 
-export async function fetchConversation(id) {
-  const response = await fetch(`${API_ROOT}/conversations/${id}`);
+export async function fetchConversation(id, options = {}) {
+  const response = await fetch(`${API_ROOT}/conversations/${id}`, options);
   if (!response.ok) throw new Error("Could not load conversation");
   return response.json();
 }
