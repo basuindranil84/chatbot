@@ -57,7 +57,15 @@ export default function MessageList({ messages, isSending, onPrompt, onShowMore 
                     aria-label={accessibleName}
                   >
                     {profile.photo_url ? (
-                      <img className="profile-photo" src={profile.photo_url} alt="" />
+                      <img
+                        className="profile-photo"
+                        src={profile.photo_url}
+                        alt=""
+                        width="64"
+                        height="64"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     ) : (
                       <div className="profile-photo profile-photo-fallback" aria-hidden="true">
                         {firstName.charAt(0)}
