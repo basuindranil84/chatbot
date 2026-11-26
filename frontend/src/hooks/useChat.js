@@ -4,25 +4,41 @@ import { fetchConversation, sendChatMessage } from "../api/chatApi";
 const CONVERSATION_KEY = "matchmaking-assistant-conversation-id";
 const DRAFT_KEY = "matchmaking-assistant-draft";
 
+function readStorage(storageName, key) {
+  try {
+    return window[storageName].getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(storageName, key, value) {
+  try {
+    window[storageName].setItem(key, value);
+  } catch {
+    // Keep the in-memory chat usable when browser storage is unavailable.
+  }
+}
+
 export function useChat() {
   const [messages, setMessages] = useState([]);
   const [conversationId, setConversationId] = useState(
-    () => localStorage.getItem(CONVERSATION_KEY) || null,
+    () => readStorage("localStorage", CONVERSATION_KEY) || null,
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [sendError, setSendError] = useState("");
-  const [draft, setDraft] = useState(() => sessionStorage.getItem(DRAFT_KEY) || "");
+  const [draft, setDraft] = useState(() => readStorage("sessionStorage", DRAFT_KEY) || "");
   const [lastSentMessage, setLastSentMessage] = useState("");
   const sendInProgressRef = useRef(false);
 
   useEffect(() => {
-    if (conversationId) localStorage.setItem(CONVERSATION_KEY, conversationId);
+    if (conversationId) writeStorage("localStorage", CONVERSATION_KEY, conversationId);
   }, [conversationId]);
 
   useEffect(() => {
-    sessionStorage.setItem(DRAFT_KEY, draft);
+    writeStorage("sessionStorage", DRAFT_KEY, draft);
   }, [draft]);
 
   async function loadConversation() {
