@@ -7,14 +7,17 @@ const EXAMPLE_PROMPTS = [
 ];
 
 export default function MessageList({ messages, isSending, onPrompt, onShowMore }) {
-  const endOfMessagesRef = useRef(null);
+  const messageListRef = useRef(null);
 
   useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({ block: "end" });
+    const messageList = messageListRef.current;
+    if (messageList) {
+      messageList.scrollTo({ top: messageList.scrollHeight, behavior: "auto" });
+    }
   }, [messages, isSending]);
 
   return (
-    <div className="message-list" aria-live="polite">
+    <div className="message-list" ref={messageListRef} aria-live="polite">
       {messages.length === 0 && (
         <article className="greeting">
           <div className="greeting-copy">
@@ -93,7 +96,6 @@ export default function MessageList({ messages, isSending, onPrompt, onShowMore 
           </div>
         </article>
       )}
-      <div ref={endOfMessagesRef} />
     </div>
   );
 }
